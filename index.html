@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="cache-control" content="no-cache"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="-1"><style type="text/css">/* styles.css */
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+    margin: 0;
+}
+
+.calculator {
+    background-color: #333;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 400px;
+}
+
+.display {
+    background-color: #000;
+    color: #fff;
+    text-align: right;
+    padding: 20px;
+    font-size: 2.5rem;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 20px;
+}
+
+.btn {
+    border: none;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    padding: 20px;
+    cursor: pointer;
+}
+
+.btn-light {
+    background-color: #d4d4d2;
+}
+
+.btn-dark {
+    background-color: #505050;
+    color: white;
+}
+
+.btn-orange {
+    background-color: #ff9500;
+    color: white;
+}
+
+.btn-zero {
+    grid-column: span 2;
+}
+</style>
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Calculator Replica</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <div class="result">0</div>
+        </div>
+        <div class="buttons">
+            <button class="btn btn-light">AC</button>
+            <button class="btn btn-light">+/-</button>
+            <button class="btn btn-light">%</button>
+            <button class="btn btn-orange">÷</button>
+            <button class="btn btn-dark">7</button>
+            <button class="btn btn-dark">8</button>
+            <button class="btn btn-dark">9</button>
+            <button class="btn btn-orange">×</button>
+            <button class="btn btn-dark">4</button>
+            <button class="btn btn-dark">5</button>
+            <button class="btn btn-dark">6</button>
+            <button class="btn btn-orange">-</button>
+            <button class="btn btn-dark">1</button>
+            <button class="btn btn-dark">2</button>
+            <button class="btn btn-dark">3</button>
+            <button class="btn btn-orange">+</button>
+            <button class="btn btn-dark btn-zero">0</button>
+            <button class="btn btn-dark">.</button>
+            <button class="btn btn-orange">=</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+
+
+<script>// script.js
+
+const display = document.querySelector('.result');
+let currentInput = '';
+let shouldResetDisplay = false;
+
+const buttons = document.querySelectorAll('.btn');
+buttons.forEach(button => {
+    button.addEventListener('click', () => handleButtonClick(button.textContent));
+});
+
+function handleButtonClick(value) {
+    if (navigator.vibrate) {
+        navigator.vibrate(50); // Vibrate for 50ms
+    }
+    
+    if (isNaN(value) && value !== '.') {
+        handleOperator(value);
+    } else {
+        handleNumber(value);
+    }
+    updateDisplay();
+}
+
+function handleNumber(value) {
+    if (shouldResetDisplay) {
+        currentInput = value;
+        shouldResetDisplay = false;
+    } else {
+        currentInput += value;
+    }
+}
+
+function handleOperator(value) {
+    switch (value) {
+        case 'AC':
+            currentInput = '';
+            break;
+        case '+/-':
+            currentInput = (parseFloat(currentInput) * -1).toString();
+            break;
+        case '%':
+            currentInput = (parseFloat(currentInput) / 100).toString();
+            break;
+        case '=':
+            try {
+                currentInput = evaluateExpression(currentInput).toString();
+                shouldResetDisplay = true;
+            } catch {
+                currentInput = 'Error';
+            }
+            break;
+        default:
+            if (shouldResetDisplay && !isNaN(currentInput)) {
+                shouldResetDisplay = false;
+            } else {
+                currentInput += ` ${value} `;
+            }
+            break;
+    }
+}
+
+function updateDisplay() {
+    display.textContent = currentInput || '0';
+}
+
+function evaluateExpression(expression) {
+    const sanitizedExpression = expression.replace(/×/g, '*').replace(/÷/g, '/');
+    return Function(`"use strict"; return (${sanitizedExpression})`)();
+}
+</script></body>
